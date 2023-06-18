@@ -1,2 +1,5 @@
-﻿  dllmain.cpp
-  DirectX7Hook.vcxproj -> E:\Development\Visual Studio\DirectX7Hook\DirectX7Hook\Debug\DirectX7Hook.dll
+﻿  pch.cpp
+  dllmain.cpp
+detours.lib(detours.obj) : warning LNK4099: PDB '' was not found with 'detours.lib(detours.obj)' or at ''; linking object as if no debug info
+detours.lib(disasm.obj) : warning LNK4099: PDB '' was not found with 'detours.lib(disasm.obj)' or at ''; linking object as if no debug info
+  DirectX7Hook.vcxproj -> E:\Development\Visual Studio\DirectX7\Debug\DirectX7Hook.dll

@@ -118,6 +118,8 @@ HRESULT WINAPI HookedCreateSurface(IDirectDraw7* unnamed, LPDDSURFACEDESC2 unnam
 {
     std::cout << "HOOKED CREATE SURFACE" << std::endl;
 
+
+    // Get Result
     HRESULT result = real_surface(unnamed, unnamedParam1, unnamedParam2, unnamedParam3);
 
     if (SUCCEEDED(result))
@@ -186,6 +188,8 @@ HRESULT WINAPI HookedSurfaceIsLock(IDirectDrawSurface7* unnamed)
 
 void detourSurfaceFunctions(LPDIRECTDRAWSURFACE7 FAR* unnamedParam2)
 {
+
+    // Lookup vTable in ddraw.h, learn how to use detours.
     void** surfaceTable[49];
     memcpy(surfaceTable, *reinterpret_cast<void***>((*unnamedParam2)), sizeof(surfaceTable));
     real_surface_flip = (Surface7_Flip)surfaceTable[11];
@@ -252,6 +256,8 @@ void detourSurfaceFunctions(LPDIRECTDRAWSURFACE7 FAR* unnamedParam2)
 
 void detouringDirectDrawFunctions(void** table)
 {
+
+    // Lookup vTable in ddraw.h, learn how to use detours.
     real_flip = (IDirectDrawSurface7_Flipp)table[11];
 
     DetourTransactionBegin();
@@ -375,21 +381,28 @@ void detouringDirectDrawFunctions(void** table)
 
 void mainThread()
 {
+    // Adding a console to see the debug messages
     AllocConsole();
     freopen("CONOUT$", "w", stdout);
+    // looking for the ddraw.dll module
     HMODULE ddraw = GetModuleHandleA("ddraw.dll");
     void* ddrawTable[49];
     if (ddraw)
     {
+        // if yes
         LPDIRECTDRAW7 pDDraw = nullptr;
         auto pDDCreate = reinterpret_cast<LPDIRECTDRAWCREATEEX>(GetProcAddress(ddraw, "DirectDrawCreateEx"));
+        // get the function pointer to DirectDrawCreateEx
         if (pDDCreate)
         {
+            // if it works, get a IDirectDraw7 object from it, by calling it
             HRESULT hr = pDDCreate(NULL, reinterpret_cast<LPVOID*>(&pDDraw), IID_IDirectDraw7, NULL);
             if (SUCCEEDED(hr))
             {
+                // Get its virtual table and release it
                 memcpy(ddrawTable, *reinterpret_cast<void***>(pDDraw), sizeof(ddrawTable));
                 pDDraw->Release();
+                // Detouring IDirectDraw7 Functions.
                 detouringDirectDrawFunctions((void**)ddrawTable);
             }
             else
